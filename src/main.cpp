@@ -19,17 +19,17 @@ void exchange_color(sil::Image& img)
     for(glm::vec3& color : img.pixels())
     {
         std::swap(color.r,color.b);
-        // EST CE QU'IL Y A UNE AUTRE FACON DE FAIRE QUE SWAP???
-        // if (color.r &&!color.b && !color.g)
-        // {
-        //     color.b=color.r;
-        //     color.r=0;
-        // }
-        // if (color.b && !color.r && !color.g)
-        // {
-        //     color.r=color.b;
-        //     color.b=0;
-        // }
+        //EST CE QU'IL Y A UNE AUTRE FACON DE FAIRE QUE SWAP???
+        if (color.r &&!color.b && !color.g)
+        {
+            color.b=color.r;
+            color.r=0;
+        }
+        if (color.b && !color.r && !color.g)
+        {
+            color.r=color.b;
+            color.b=0;
+        }
         
     }
 }
@@ -89,7 +89,7 @@ void noise_filter(sil::Image& img)//pas vraiment ce que ca demande
         float c=random_float(0, 0.75);
         if (color==glm::vec3{1,1,1})
         {
-            color=glm::vec3 {color.r-a,color.g-b,color.b-c};
+            color=glm::vec3 {color.r*a,color.g*b,color.b*c};
         }
         color=glm::vec3 {color.r+a,color.g+b,color.b+c};
     }
@@ -132,30 +132,39 @@ void RGB_split(sil::Image& img)
     }
 }
 
-void clear_down (sil::Image& img)
+void clear_l (sil::Image& img, float l)// 0.3<l<2 si nn trop fort l'effet
 {
     for (glm::vec3& color:img.pixels())
     {
-        //color*=color; //c'est un peu trop fort
-        color.r=std::pow(color.r,1.5);
-        color.b=std::pow(color.b,1.5);
-        color.g=std::pow(color.g,1.5);
+        if (l<1)
+        {
+            if (color!=glm::vec3{0,0,0})
+            {
+                color.r=std::pow(color.r,0.5);
+                color.b=std::pow(color.b,0.5);
+                color.g=std::pow(color.g,0.5);
+            }
+        }
+        //color*=color; //c'est un peu trop fort 
+        color.r=std::pow(color.r,l);
+        color.b=std::pow(color.b,l);
+        color.g=std::pow(color.g,l);
     }
 }
 
-void clear_up (sil::Image& img)
-{
-    for (glm::vec3& color:img.pixels())
-    {
-        if (color!=glm::vec3{0,0,0})
-        {
-            color.r=std::pow(color.r,0.5);
-            color.b=std::pow(color.b,0.5);
-            color.g=std::pow(color.g,0.5);
-        }
+// void clear_up (sil::Image& img)
+// {
+//     for (glm::vec3& color:img.pixels())
+//     {
+//         if (color!=glm::vec3{0,0,0})
+//         {
+//             color.r=std::pow(color.r,0.5);
+//             color.b=std::pow(color.b,0.5);
+//             color.g=std::pow(color.g,0.5);
+//         }
         
-    }
-}
+//     }
+// }
 
 void disk(sil::Image& img,int r) //(image, rayon)
 {
@@ -179,6 +188,7 @@ void disk(sil::Image& img,int r) //(image, rayon)
 
 void circle (sil::Image& img,int r,int t,float x_center,float y_center) //(image, rayon, epaisseur)
 {
+    //a mettre dans les paramètres si on veut le centre de l'image:
     // int x_center{img.width()/2};
     // int y_center{img.width()/2};
     for(int x=0;x<img.width();x++)
@@ -500,12 +510,12 @@ int main()
     // }
     // {
     //     sil::Image image{"images/photo.jpg"};
-    //     clear_down(image);
+    //     clear_l(image,1.5);
     //     image.save("output/clear_down.png");
     // }
     // {
     //     sil::Image image{"images/photo.jpg"};
-    //     clear_up(image);
+    //     clear_l(image,0.5);
     //     image.save("output/clear_up.png");
     // }
     // {
@@ -538,6 +548,13 @@ int main()
 
     // {
     //     sil::Image image{500/*width*/, 500/*height*/};
+    //     carreau(image,350,5,250,250);
+    //     //mosaique(image,6,1.5);
+    //     image.save("output/carre.png");
+    // }
+
+    // {
+    //     sil::Image image{500/*width*/, 500/*height*/};
     //     andal(image,250,10);
     //     //mosaique(image,6,1.5);
     //     image.save("output/andal.png");
@@ -558,11 +575,12 @@ int main()
     //     mosaique_miror(image,6);
     //     image.save("output/mosaique_miror.png");
     // }
-    {
-        sil::Image image{"images/logo.png"};
-        glitch(image,500);
-        image.save("output/glitch.png");
-    }
+
+    // {
+    //     sil::Image image{"images/logo.png"};
+    //     glitch(image,500);
+    //     image.save("output/glitch.png");
+    // }
 
     
 }
